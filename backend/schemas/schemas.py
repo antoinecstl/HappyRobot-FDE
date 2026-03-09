@@ -47,9 +47,9 @@ SentimentType = Literal["positive", "neutral", "negative"]
 class CallCreate(BaseModel):
     call_id: str
     mc_number: str
-    carrier_name: str
+    carrier_name: str = "Unknown"
     load_id: Optional[str] = None
-    initial_rate: Optional[float] = 0.0
+    initial_rate: float = 0.0
     final_agreed_rate: Optional[float] = None
     num_negotiations: int = 0
     outcome: OutcomeType
@@ -58,9 +58,30 @@ class CallCreate(BaseModel):
     notes: Optional[str] = ""
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    @field_validator("initial_rate", "final_agreed_rate", mode="before")
+    @field_validator("carrier_name", mode="before")
     @classmethod
-    def _parse_optional_float(cls, v: Any) -> Optional[float]:
+    def _parse_carrier_name(cls, v: Any) -> str:
+        if v is None or v == "" or v == "null":
+            return "Unknown"
+        return str(v)
+
+    @field_validator("load_id", mode="before")
+    @classmethod
+    def _parse_optional_str(cls, v: Any) -> Optional[str]:
+        if v is None or v == "" or v == "null":
+            return None
+        return str(v)
+
+    @field_validator("initial_rate", mode="before")
+    @classmethod
+    def _parse_initial_rate(cls, v: Any) -> float:
+        if v is None or v == "" or v == "null":
+            return 0.0
+        return float(v)
+
+    @field_validator("final_agreed_rate", mode="before")
+    @classmethod
+    def _parse_final_rate(cls, v: Any) -> Optional[float]:
         if v is None or v == "" or v == "null":
             return None
         return float(v)
