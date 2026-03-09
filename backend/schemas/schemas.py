@@ -89,6 +89,22 @@ class TopLane(BaseModel):
     count: int
 
 
+# ── Negotiation ───────────────────────────────────────────────────
+class EvaluateOfferRequest(BaseModel):
+    load_id: str = Field(..., description="ID of the load being negotiated")
+    carrier_rate: float = Field(..., gt=0, description="Rate proposed by the carrier")
+    round: int = Field(..., ge=1, le=4, description="Current negotiation round (1-3, 4 = reject)")
+
+
+class EvaluateOfferResponse(BaseModel):
+    accept: bool
+    counter_rate: Optional[float] = None
+    max_rate: float
+    loadboard_rate: float
+    round: int
+    message: str
+
+
 class MetricsResponse(BaseModel):
     total_calls: int
     booked_count: int

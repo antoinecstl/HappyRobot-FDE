@@ -9,7 +9,7 @@ from slowapi.errors import RateLimitExceeded
 
 from backend.config import settings
 from backend.database import init_db
-from backend.routers import carrier, loads, calls, health
+from backend.routers import carrier, loads, calls, health, negotiations
 
 # ── Rate limiter ──────────────────────────────────────────────────
 limiter = Limiter(key_func=get_remote_address, default_limits=[settings.RATE_LIMIT])
@@ -67,3 +67,4 @@ app.include_router(health.router)
 app.include_router(carrier.router)
 app.include_router(loads.router)
 app.include_router(calls.router)
+app.include_router(negotiations.router)
