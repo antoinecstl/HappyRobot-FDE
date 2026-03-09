@@ -17,6 +17,13 @@ class VerifyCarrierResponse(BaseModel):
 
 
 # ── Loads ─────────────────────────────────────────────────────────
+class SearchLoadsRequest(BaseModel):
+    origin: Optional[str] = Field(None, description="Filter by origin (fuzzy)")
+    destination: Optional[str] = Field(None, description="Filter by destination (fuzzy)")
+    equipment_type: Optional[str] = Field(None, description="Filter by equipment type (exact)")
+    max_results: int = Field(3, ge=1, le=50, description="Max results to return")
+
+
 class LoadOut(BaseModel):
     load_id: str
     origin: str

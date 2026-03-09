@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
 from backend.database import get_db
-from backend.schemas.schemas import LoadOut
+from backend.schemas.schemas import LoadOut, SearchLoadsRequest
 from backend.services.db_service import get_loads, get_load_by_id
 
 router = APIRouter(tags=["loads"])
@@ -18,6 +18,14 @@ async def list_loads(
     db: AsyncSession = Depends(get_db),
 ):
     return await get_loads(db, origin, destination, equipment_type, max_results)
+
+
+@router.post("/loads/search", response_model=list[LoadOut])
+async def search_loads(
+    body: SearchLoadsRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_loads(db, body.origin, body.destination, body.equipment_type, body.max_results)
 
 
 @router.get("/loads/{load_id}", response_model=LoadOut)
