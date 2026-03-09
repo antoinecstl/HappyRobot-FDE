@@ -20,8 +20,15 @@ class VerifyCarrierResponse(BaseModel):
 class SearchLoadsRequest(BaseModel):
     origin: Optional[str] = Field(None, description="Filter by origin (fuzzy)")
     destination: Optional[str] = Field(None, description="Filter by destination (fuzzy)")
-    equipment_type: Optional[str] = Field(None, description="Filter by equipment type (exact)")
+    equipment_type: Optional[str] = Field(None, description="Filter by equipment type (fuzzy)")
     max_results: int = Field(1, ge=1, le=50, description="Max results to return")
+
+    @field_validator("origin", "destination", "equipment_type", mode="before")
+    @classmethod
+    def _clean_optional_str(cls, v: Any) -> Optional[str]:
+        if v is None or v == "" or v == "null":
+            return None
+        return str(v)
 
 
 class LoadOut(BaseModel):

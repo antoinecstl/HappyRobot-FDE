@@ -25,7 +25,7 @@ async def get_loads(
     if destination:
         query = query.where(Load.destination.ilike(f"%{destination}%"))
     if equipment_type:
-        query = query.where(Load.equipment_type == equipment_type)
+        query = query.where(Load.equipment_type.ilike(f"%{equipment_type}%"))
     query = query.limit(max_results)
 
     result = await db.execute(query)
