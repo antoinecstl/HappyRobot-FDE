@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
-from typing import Optional, Literal
-from pydantic import BaseModel, Field
+from typing import Optional, Literal, Any
+from pydantic import BaseModel, Field, field_validator
 
 
 # ── Carrier verification ──────────────────────────────────────────
@@ -49,14 +49,28 @@ class CallCreate(BaseModel):
     mc_number: str
     carrier_name: str
     load_id: Optional[str] = None
-    initial_rate: float
+    initial_rate: Optional[float] = 0.0
     final_agreed_rate: Optional[float] = None
     num_negotiations: int = 0
     outcome: OutcomeType
     sentiment: SentimentType
-    call_duration_seconds: int
+    call_duration_seconds: int = 0
     notes: Optional[str] = ""
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    @field_validator("initial_rate", "final_agreed_rate", mode="before")
+    @classmethod
+    def _parse_optional_float(cls, v: Any) -> Optional[float]:
+        if v is None or v == "" or v == "null":
+            return None
+        return float(v)
+
+    @field_validator("num_negotiations", "call_duration_seconds", mode="before")
+    @classmethod
+    def _parse_int(cls, v: Any) -> int:
+        if v is None or v == "" or v == "null":
+            return 0
+        return int(v)
 
 
 class CallOut(BaseModel):
