@@ -176,7 +176,7 @@ export default function CallsPage() {
                       <Badge variant="sentiment" value={call.sentiment} />
                     </td>
                     <td className="py-3 px-4 text-right font-mono">
-                      ${call.initial_rate.toLocaleString()}
+                      {call.initial_rate ? `$${call.initial_rate.toLocaleString()}` : "—"}
                     </td>
                     <td className="py-3 px-4 text-right font-mono">
                       {call.final_agreed_rate
@@ -185,8 +185,9 @@ export default function CallsPage() {
                     </td>
                     <td className="py-3 px-4 text-center">{call.num_negotiations}</td>
                     <td className="py-3 px-4 text-right text-muted-foreground">
-                      {Math.floor(call.call_duration_seconds / 60)}m{" "}
-                      {call.call_duration_seconds % 60}s
+                      {call.call_duration_seconds
+                        ? `${Math.floor(call.call_duration_seconds / 60)}m ${call.call_duration_seconds % 60}s`
+                        : "—"}
                     </td>
                     <td className="py-3 px-4 text-right text-muted-foreground text-xs">
                       {format(new Date(call.timestamp), "MMM d, h:mm a")}

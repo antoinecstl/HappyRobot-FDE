@@ -9,7 +9,7 @@ import { CardSkeleton, ChartSkeleton, TableSkeleton } from "@/components/ui/skel
 import { CallsChart } from "@/components/charts/calls-chart";
 import { OutcomeChart } from "@/components/charts/outcome-chart";
 import { SentimentChart } from "@/components/charts/sentiment-chart";
-import { Phone, TrendingUp, MessageSquare, DollarSign } from "lucide-react";
+import { Phone, TrendingUp, MessageSquare, DollarSign, Clock, MapPin } from "lucide-react";
 
 export default function DashboardPage() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -76,52 +76,75 @@ export default function DashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <Card>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center justify-center text-center gap-2">
             <div className="rounded-lg bg-primary/10 p-2">
               <Phone className="h-5 w-5 text-primary" />
             </div>
-            <div>
-              <CardTitle>Total Calls</CardTitle>
-              <CardValue>{metrics.total_calls}</CardValue>
-            </div>
+            <CardTitle>Total Calls</CardTitle>
+            <CardValue>{metrics.total_calls}</CardValue>
           </div>
         </Card>
         <Card>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center justify-center text-center gap-2">
             <div className="rounded-lg bg-emerald-500/10 p-2">
               <TrendingUp className="h-5 w-5 text-emerald-400" />
             </div>
-            <div>
-              <CardTitle>Booking Rate</CardTitle>
-              <CardValue>{metrics.booking_rate}%</CardValue>
-            </div>
+            <CardTitle>Booking Rate</CardTitle>
+            <CardValue>
+              {metrics.booking_rate}%
+              <span className="text-xs font-normal text-muted-foreground ml-1">
+                ({metrics.booked_count})
+              </span>
+            </CardValue>
           </div>
         </Card>
         <Card>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center justify-center text-center gap-2">
             <div className="rounded-lg bg-orange-500/10 p-2">
               <MessageSquare className="h-5 w-5 text-orange-400" />
             </div>
-            <div>
-              <CardTitle>Avg. Negotiation Rounds</CardTitle>
-              <CardValue>{metrics.avg_negotiation_rounds}</CardValue>
-            </div>
+            <CardTitle>Avg. Negotiation Rounds</CardTitle>
+            <CardValue>{metrics.avg_negotiation_rounds}</CardValue>
           </div>
         </Card>
         <Card>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center justify-center text-center gap-2">
             <div className="rounded-lg bg-blue-500/10 p-2">
               <DollarSign className="h-5 w-5 text-blue-400" />
             </div>
-            <div>
-              <CardTitle>Avg. Rate Delta</CardTitle>
-              <CardValue>
-                {metrics.avg_rate_delta_pct > 0 ? "+" : ""}
-                {metrics.avg_rate_delta_pct}%
-              </CardValue>
+            <CardTitle>Avg. Rate Delta</CardTitle>
+            <CardValue>
+              {metrics.avg_rate_delta_pct > 0 ? "+" : ""}
+              {metrics.avg_rate_delta_pct}%
+            </CardValue>
+          </div>
+        </Card>
+        <Card>
+          <div className="flex flex-col items-center justify-center text-center gap-2">
+            <div className="rounded-lg bg-purple-500/10 p-2">
+              <Clock className="h-5 w-5 text-purple-400" />
             </div>
+            <CardTitle>Avg. Call Duration</CardTitle>
+            <CardValue>
+              {metrics.avg_call_duration_seconds
+                ? `${Math.floor(metrics.avg_call_duration_seconds / 60)}m ${Math.round(metrics.avg_call_duration_seconds % 60)}s`
+                : "—"}
+            </CardValue>
+          </div>
+        </Card>
+        <Card>
+          <div className="flex flex-col items-center justify-center text-center gap-2">
+            <div className="rounded-lg bg-cyan-500/10 p-2">
+              <MapPin className="h-5 w-5 text-cyan-400" />
+            </div>
+            <CardTitle>Top Lane</CardTitle>
+            <CardValue className="text-lg">
+              {metrics.top_lanes.length > 0
+                ? `${metrics.top_lanes[0].origin} → ${metrics.top_lanes[0].destination}`
+                : "—"}
+            </CardValue>
           </div>
         </Card>
       </div>
@@ -141,6 +164,31 @@ export default function DashboardPage() {
           <SentimentChart data={metrics.sentiment_breakdown} />
         </Card>
       </div>
+
+      {/* Top Lanes */}
+      {metrics.top_lanes.length > 0 && (
+        <Card>
+          <CardTitle className="mb-4">Top Lanes</CardTitle>
+          <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+            {metrics.top_lanes.map((lane, i) => (
+              <div
+                key={`${lane.origin}-${lane.destination}`}
+                className="flex items-center justify-between rounded-lg border border-border px-4 py-3"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-xs font-bold text-muted-foreground">#{i + 1}</span>
+                  <span className="text-sm truncate">
+                    {lane.origin} → {lane.destination}
+                  </span>
+                </div>
+                <span className="text-xs font-mono text-muted-foreground ml-2 shrink-0">
+                  {lane.count} calls
+                </span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Recent Calls Table */}
       <Card>

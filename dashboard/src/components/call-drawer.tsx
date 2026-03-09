@@ -54,7 +54,7 @@ export function CallDrawer({ call, onClose }: CallDrawerProps) {
               <div className="grid grid-cols-2 gap-3">
                 <DetailRow
                   label="Initial Rate"
-                  value={`$${call.initial_rate.toLocaleString()}`}
+                  value={call.initial_rate ? `$${call.initial_rate.toLocaleString()}` : "N/A"}
                 />
                 <DetailRow
                   label="Final Rate"
@@ -70,7 +70,7 @@ export function CallDrawer({ call, onClose }: CallDrawerProps) {
                 />
                 <DetailRow
                   label="Call Duration"
-                  value={`${Math.floor(call.call_duration_seconds / 60)}m ${call.call_duration_seconds % 60}s`}
+                  value={call.call_duration_seconds ? `${Math.floor(call.call_duration_seconds / 60)}m ${call.call_duration_seconds % 60}s` : "N/A"}
                 />
               </div>
             </div>

@@ -22,6 +22,31 @@ interface OutcomeChartProps {
   data: Record<string, number>;
 }
 
+interface PiePayload {
+  name: string;
+  value: number;
+  key: string;
+}
+
+function CustomTooltip({ active, payload }: { active?: boolean; payload?: { payload: PiePayload }[] }) {
+  if (!active || !payload || payload.length === 0) return null;
+  const { name, value } = payload[0].payload;
+  return (
+    <div
+      style={{
+        backgroundColor: "hsl(222.2, 84%, 4.9%)",
+        border: "1px solid hsl(217.2, 32.6%, 17.5%)",
+        borderRadius: "8px",
+        padding: "8px 12px",
+      }}
+    >
+      <p style={{ color: "hsl(210, 40%, 98%)", margin: 0, fontSize: "13px", textTransform: "capitalize" }}>
+        {name}: <strong>{value}</strong>
+      </p>
+    </div>
+  );
+}
+
 export function OutcomeChart({ data }: OutcomeChartProps) {
   const chartData = Object.entries(data).map(([name, value]) => ({
     name: name.replace(/_/g, " "),
@@ -48,6 +73,7 @@ export function OutcomeChart({ data }: OutcomeChartProps) {
           outerRadius={85}
           paddingAngle={3}
           dataKey="value"
+          nameKey="name"
         >
           {chartData.map((entry) => (
             <Cell
@@ -56,15 +82,7 @@ export function OutcomeChart({ data }: OutcomeChartProps) {
             />
           ))}
         </Pie>
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "hsl(222.2, 84%, 4.9%)",
-            border: "1px solid hsl(217.2, 32.6%, 17.5%)",
-            borderRadius: "8px",
-            color: "hsl(210, 40%, 98%)",
-            textTransform: "capitalize",
-          }}
-        />
+        <Tooltip content={<CustomTooltip />} />
         <Legend
           formatter={(value: string) => (
             <span className="text-xs text-muted-foreground capitalize">
