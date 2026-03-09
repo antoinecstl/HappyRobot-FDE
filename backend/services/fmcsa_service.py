@@ -73,6 +73,7 @@ async def verify_carrier(mc_number: str) -> VerifyCarrierResponse:
         is_authorized = str(auth_status).upper() in (
             "AUTHORIZED FOR PROPERTY",
             "A",
+            "Y",
             "AUTHORIZED FOR HHG",
         )
         is_safe = str(safety_rating).upper() != "UNSATISFACTORY"
