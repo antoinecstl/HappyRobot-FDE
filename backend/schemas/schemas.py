@@ -1,0 +1,102 @@
+from datetime import datetime, timezone
+from typing import Optional, Literal
+from pydantic import BaseModel, Field
+
+
+# ── Carrier verification ──────────────────────────────────────────
+class VerifyCarrierRequest(BaseModel):
+    mc_number: str = Field(..., description="Motor Carrier number (digits only or with MC- prefix)")
+
+
+class VerifyCarrierResponse(BaseModel):
+    eligible: bool
+    carrier_name: str
+    dot_number: str
+    status: str
+    reason: str
+
+
+# ── Loads ─────────────────────────────────────────────────────────
+class LoadOut(BaseModel):
+    load_id: str
+    origin: str
+    destination: str
+    pickup_datetime: datetime
+    delivery_datetime: datetime
+    equipment_type: str
+    loadboard_rate: float
+    notes: Optional[str] = ""
+    weight: int
+    commodity_type: str
+    num_of_pieces: int
+    miles: int
+    dimensions: Optional[str] = ""
+
+    class Config:
+        from_attributes = True
+
+
+# ── Calls ─────────────────────────────────────────────────────────
+OutcomeType = Literal[
+    "booked", "no_load_found", "price_rejected",
+    "carrier_ineligible", "hung_up", "transferred"
+]
+SentimentType = Literal["positive", "neutral", "negative"]
+
+
+class CallCreate(BaseModel):
+    call_id: str
+    mc_number: str
+    carrier_name: str
+    load_id: Optional[str] = None
+    initial_rate: float
+    final_agreed_rate: Optional[float] = None
+    num_negotiations: int = 0
+    outcome: OutcomeType
+    sentiment: SentimentType
+    call_duration_seconds: int
+    notes: Optional[str] = ""
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class CallOut(BaseModel):
+    call_id: str
+    mc_number: str
+    carrier_name: str
+    load_id: Optional[str] = None
+    initial_rate: float
+    final_agreed_rate: Optional[float] = None
+    num_negotiations: int
+    outcome: str
+    sentiment: str
+    call_duration_seconds: int
+    notes: Optional[str] = ""
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# ── Metrics ───────────────────────────────────────────────────────
+class CallsPerDay(BaseModel):
+    date: str
+    count: int
+
+
+class TopLane(BaseModel):
+    origin: str
+    destination: str
+    count: int
+
+
+class MetricsResponse(BaseModel):
+    total_calls: int
+    booked_count: int
+    booking_rate: float
+    avg_negotiation_rounds: float
+    avg_rate_delta_pct: float
+    sentiment_breakdown: dict[str, int]
+    outcome_breakdown: dict[str, int]
+    calls_per_day: list[CallsPerDay]
+    avg_call_duration_seconds: float = 0.0
+    top_lanes: list[TopLane] = []
