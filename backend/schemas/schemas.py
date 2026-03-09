@@ -57,7 +57,6 @@ SentimentType = Literal["positive", "neutral", "negative"]
 
 
 class CallCreate(BaseModel):
-    call_id: str
     mc_number: str
     carrier_name: str = "Unknown"
     load_id: Optional[str] = None

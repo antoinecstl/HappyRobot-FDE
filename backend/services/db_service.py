@@ -1,6 +1,6 @@
 from sqlalchemy import select, func, case, cast, Date
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from backend.models.models import Load, Call
@@ -42,7 +42,16 @@ async def get_load_by_id(db: AsyncSession, load_id: str) -> Optional[LoadOut]:
 # ── Calls ─────────────────────────────────────────────────────────
 
 async def create_call(db: AsyncSession, call_data: CallCreate) -> CallOut:
-    call = Call(**call_data.model_dump())
+    # Auto-generate call_id: CALL-YYYYMMDD-XXX
+    today = datetime.now(timezone.utc).strftime("%Y%m%d")
+    prefix = f"CALL-{today}-"
+    result = await db.execute(
+        select(func.count()).select_from(Call).where(Call.call_id.like(f"{prefix}%"))
+    )
+    count = result.scalar() or 0
+    call_id = f"{prefix}{count + 1:03d}"
+
+    call = Call(call_id=call_id, **call_data.model_dump())
     db.add(call)
     await db.commit()
     await db.refresh(call)
